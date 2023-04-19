@@ -1,0 +1,26 @@
+syntax = "proto3";
+option java_package = "com.example.departmentapi";
+import "user.proto";
+
+message DepartmentRequest {
+  int32 id = 1;
+  string name = 2;
+}
+
+message DepartmentResponse {
+  int32 id = 1;
+  string name = 2;
+  bool close = 3;
+}
+
+message DepartmentFullResponse {
+  int32 id = 1;
+  string name = 2;
+  bool close = 3;
+  UserResponse user = 4;
+}
+
+service DepartmentService {
+  rpc getDepartment(DepartmentRequest) returns (DepartmentResponse);
+  rpc getFullDepartmentInfo(DepartmentRequest) returns (DepartmentFullResponse);
+}

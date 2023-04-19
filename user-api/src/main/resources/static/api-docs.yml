@@ -467,6 +467,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EmailResponse'
+        department:
+          $ref: '#/components/schemas/DepartmentResponse'
     Users:
       type: array
       items:
@@ -539,3 +541,19 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/PhoneResponse"
+
+    #  <------------- DEPARTMENT ------------->
+    DepartmentRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    DepartmentResponse:
+      type: object
+      properties:
+        department_id:
+          type: string
+        name:
+          type: string

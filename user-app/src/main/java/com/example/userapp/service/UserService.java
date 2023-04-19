@@ -1,44 +1,43 @@
 package com.example.userapp.service;
 
-import com.example.grpc.UserServiceGrpc;
-import com.example.grpc.UserServiceOuterClass;
-import io.grpc.stub.StreamObserver;
-import net.devh.boot.grpc.server.service.GrpcService;
+import com.example.model.UserResponse;
+import com.example.userapp.DepartmentResponseGrpc;
+import com.example.userapp.entity.User;
+import com.example.userapp.mappers.UserMapper;
+import com.example.userapp.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-@GrpcService
-public class UserService extends UserServiceGrpc.UserServiceImplBase {
+@Service
+@RequiredArgsConstructor
+public class UserService {
 
-    @Override
-    public void getUser(UserServiceOuterClass.GrpcUserRequest request,
-                        StreamObserver<UserServiceOuterClass.GrpcUserResponse> responseObserver) {
-        UserServiceOuterClass.GrpcUserResponse resp1 = UserServiceOuterClass.GrpcUserResponse.newBuilder()
-                .setId(1)
-                .setFirstName("Fitz")
-                .setLastName("Mouse")
-                .setAge(30)
-                .build();
+    private final UserRepository userRepository;
+    private final DepartmentService departmentService;
 
-        UserServiceOuterClass.GrpcUserResponse resp2 = UserServiceOuterClass.GrpcUserResponse.newBuilder()
-                .setId(2)
-                .setFirstName("Skillet")
-                .setLastName("Squirrel")
-                .setAge(30)
-                .build();
-        List<UserServiceOuterClass.GrpcUserResponse> users = List.of(resp1, resp2);
-        UserServiceOuterClass.GrpcUserResponse response =
-                users.stream()
-                        .filter(u -> u.getId() == request.getId())
-                        .findFirst()
-                        .orElse(null);
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+    public UserResponse getUserById(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        DepartmentResponseGrpc department = null;
+        if (user != null && user.getDepartmentId() != null) {
+            department = departmentService.getDepartment(user.getDepartmentId());
+        }
+        return UserMapper.INSTANCE.toFullUserResponse(user, department);
     }
 
-    @KafkaListener(topics = "example")
-    public void listenGroupFoo(String message) {
-        System.out.println("Received Message in group foo: " + message);
+    public List<UserResponse> findAll() {
+        List<User> users = userRepository.findAll();
+        return users
+                .stream()
+                .map(UserMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @KafkaListener(topics = "profile", groupId = "profile-group")
+    public void listenProfileGroup(String message) {
+        System.out.println("Message" + message);
     }
 }

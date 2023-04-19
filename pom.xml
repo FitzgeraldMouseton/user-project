@@ -22,11 +22,7 @@
     <artifactId>user-project</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <modules>
-        <module>user-api</module>
-        <module>user-app</module>
-        <module>department-app</module>
-    </modules>
+
 
     <properties>
         <java.version>17</java.version>

@@ -1,0 +1,88 @@
+databaseChangeLog:
+  - changeSet:
+      id: init
+      author: FitzgeraldMouseton
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gender
+                  type: varchar(20)
+              - column:
+                  name: age
+                  type: integer
+        - createTable:
+            tableName: accounts
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: integer
+                  constraints:
+                    foreignKeyName: user_id
+                    references: users(id)
+              - column:
+                  name: balance
+                  type: decimal
+        - createTable:
+            tableName: emails
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: integer
+                  constraints:
+                    foreignKeyName: user_id
+                    references: users(id)
+              - column:
+                  name: email
+                  type: varchar(50)
+        - createTable:
+            tableName: phones
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: integer
+                  constraints:
+                    foreignKeyName: user_id
+                    references: users(id)
+              - column:
+                  name: phone
+                  type: varchar(50)

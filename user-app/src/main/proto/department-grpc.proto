@@ -1,0 +1,25 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.example.userapp";
+import "user-grpc.proto";
+
+message DepartmentRequestGrpc {
+  string id = 1;
+  string name = 2;
+}
+
+message DepartmentResponseGrpc {
+  string id = 1;
+  string name = 2;
+}
+
+message DepartmentFullResponseGrpc {
+  string id = 1;
+  string name = 2;
+  UserResponseGrpc user = 3;
+}
+
+service DepartmentService {
+  rpc getDepartment(DepartmentRequestGrpc) returns (DepartmentResponseGrpc);
+  rpc getFullDepartmentInfo(DepartmentRequestGrpc) returns (DepartmentFullResponseGrpc);
+}
