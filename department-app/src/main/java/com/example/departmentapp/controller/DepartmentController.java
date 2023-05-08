@@ -3,7 +3,7 @@ package com.example.departmentapp.controller;
 import com.example.departmentapp.feignclient.UserClient;
 import com.example.departmentapp.service.DepartmentService;
 import com.example.model.DepartmentResponse;
-import com.example.model.UserResponse;
+import com.example.model.UserShortResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ public class DepartmentController {
     @GetMapping("all")
     public ResponseEntity<List<DepartmentResponse>> getDepartments() {
         List<DepartmentResponse> departments = departmentService.getDepartments();
-        List<UserResponse> users = userClient.findAllUsers().getBody();
+        List<UserShortResponse> users = userClient.findAllUsers().getBody();
         return ResponseEntity.ok(departments);
     }
 }

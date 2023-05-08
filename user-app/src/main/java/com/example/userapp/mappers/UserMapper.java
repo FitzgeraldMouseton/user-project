@@ -1,7 +1,9 @@
 package com.example.userapp.mappers;
 
-import com.example.model.UserResponse;
-import com.example.userapp.DepartmentResponseGrpc;
+import com.example.model.DepartmentResponse;
+import com.example.model.UserFullResponse;
+import com.example.model.UserRequest;
+import com.example.model.UserShortResponse;
 import com.example.userapp.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,10 +14,14 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
+    User fromRequest(UserRequest request);
+
     @Mapping(target = "userId", source = "id")
-    UserResponse toDTO(User user);
+    @Mapping(target = "name", expression = "java(user.getFirstName() + \" \" + user.getLastName())")
+    UserShortResponse toShortUserResponse(User user);
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "name", source = "user.fullName")
-    UserResponse toFullUserResponse(User user, DepartmentResponseGrpc department);
+    @Mapping(target = "department", source = "department")
+    UserFullResponse toFullUserResponse(User user, DepartmentResponse department);
 }

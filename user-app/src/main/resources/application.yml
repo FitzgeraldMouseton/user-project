@@ -25,3 +25,11 @@ spring:
   liquibase:
     enabled: true
 
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        orm:
+#          jpa:
+#            JpaTrensationManager: DEBUG
+

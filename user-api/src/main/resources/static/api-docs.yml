@@ -50,7 +50,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserResponse"
+                $ref: "#/components/schemas/UserFullResponse"
     delete:
       summary: Delete user by id
       operationId: deleteUserById
@@ -84,7 +84,7 @@ paths:
           content:
             'application/json':
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UserFullResponse'
   /api/v1/users/update/{id}:
     put:
       tags:
@@ -108,7 +108,7 @@ paths:
           content:
             'application/json':
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UserFullResponse'
   #  <------------- END USER ------------->
 
   #  <------------- ACCOUNT ------------->
@@ -439,7 +439,7 @@ components:
             - female
         email:
           type: string
-    UserResponse:
+    UserFullResponse:
       type: object
       properties:
         user_id:
@@ -469,10 +469,27 @@ components:
             $ref: '#/components/schemas/EmailResponse'
         department:
           $ref: '#/components/schemas/DepartmentResponse'
+    UserShortResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        name:
+          type: string
+        age:
+          type: integer
+          format: int32
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+        email:
+          type: string
     Users:
       type: array
       items:
-        $ref: "#/components/schemas/UserResponse"
+        $ref: "#/components/schemas/UserShortResponse"
 
     #  <------------- ACCOUNT ------------->
 
@@ -491,7 +508,7 @@ components:
         balance:
           type: number
         user:
-          $ref: '#/components/schemas/UserResponse'
+          $ref: '#/components/schemas/UserShortResponse'
 
     Accounts:
       type: array
@@ -513,7 +530,7 @@ components:
         value:
           type: string
         user:
-          $ref: '#/components/schemas/UserResponse'
+          $ref: '#/components/schemas/UserShortResponse'
 
     Emails:
       type: array
@@ -536,7 +553,7 @@ components:
         value:
           type: string
         user:
-          $ref: '#/components/schemas/UserResponse'
+          $ref: '#/components/schemas/UserShortResponse'
     Phones:
       type: array
       items:
