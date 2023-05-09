@@ -10,9 +10,9 @@ import com.example.userapp.mappers.UserMapper;
 import com.example.userapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +24,8 @@ public class UserService {
     private final DepartmentService departmentService;
 
     public UserFullResponse getUserById(Long id) {
-        User user = userRepository.findById(id).orElse(null);
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->  new EntityNotFoundException(String.format("User with id = %d not found", id)));
         return UserMapper.INSTANCE.toFullUserResponse(user, getDepartment(user));
     }
 
@@ -36,6 +37,12 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public UserFullResponse updateUser(Long id, UserRequest request) {
+        getUserById(id);
+        User user = userRepository.save(UserMapper.INSTANCE.fromRequest(request));
+        return UserMapper.INSTANCE.toFullUserResponse(user, getDepartment(user));
+    }
+
     public UserFullResponse save(UserRequest request) {
         User user = userRepository.save(UserMapper.INSTANCE.fromRequest(request));
         return UserMapper.INSTANCE.toFullUserResponse(user, getDepartment(user));
@@ -43,11 +50,6 @@ public class UserService {
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
-    }
-
-    @KafkaListener(topics = "profile", groupId = "profile-group")
-    public void listenProfileGroup(String message) {
-        System.out.println("Message" + message);
     }
 
     @Nullable
@@ -64,4 +66,9 @@ public class UserService {
         }
         return response;
     }
+
+//    @KafkaListener(topics = "profile", groupId = "profile-group")
+//    public void listenProfileGroup(String message) {
+//        System.out.println("Message" + message);
+//    }
 }

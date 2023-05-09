@@ -28,13 +28,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@Sql("/init.sql")
 @Testcontainers
 @AutoConfigureMockMvc
 class UserControllerTest {
 
+    /*
+     * TODO Как лучше заполнять тестовые данные? Сейчас init.sql срабатывает раньше, чем миграция liquibase,
+     *  поэтому ошибка из-за того, что пытаюсь заполнять таблицы, которых ещё нет. Если добавить создание таблиц
+     *  в скрипт, то ошибка будет когда скрипт отработает, начнется миграция liquibase, а таблицы уже скриптом созданы.
+     *  Вообще не уверен, как тут лучше заполнять. Так-то liquibase кажется удобным вариантом, но когда приложению
+     *  будет много лет, и там будет куча миграций, и все их накатывать на тестовую базу не кажется хорошим решением.
+     *  Его наверно можно выключить в тестовом application.properties и тестовые данные полностью скриптом заполнять?
+     *  Какие вообще best practices для работы с тестовыми данными? В интернете информации вроде куча, а вместе с тем не
+     *  особо понятно.
+     */
     @Container
-    public static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:12.3");
+    public static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:12.3")
+            .withInitScript("./init.sql");
+
+    public final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String BASE_URL = "/api/v1/users";
 
@@ -56,7 +68,7 @@ class UserControllerTest {
 
 
     @Test
-    void createUser() throws Exception {
+    void create_user() throws Exception {
         UserRequest request = new UserRequest();
         request.setFirstName("Grave");
         request.setLastName("Worm");
@@ -65,7 +77,7 @@ class UserControllerTest {
         int countBefore = userRepository.findAll().size();
 
         mockMvc.perform(post(BASE_URL + "/create")
-                        .content(new ObjectMapper().writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Grave Worm")));
 
@@ -75,7 +87,7 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUserById() throws Exception {
+    void delete_user_by_id() throws Exception {
 
         int countBefore = userRepository.findAll().size();
 
@@ -86,7 +98,7 @@ class UserControllerTest {
     }
 
     @Test
-    void findUserById() throws Exception {
+    void find_user_by_id_success() throws Exception {
 
         // Given
         DepartmentResponseGrpc developmentDepartment = DepartmentResponseGrpc.newBuilder().setName("Development").build();
@@ -100,8 +112,19 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.department.name", is("Development")));
     }
 
+    void find_user_by_id_not_found() throws Exception {
+        // Given
+        DepartmentResponseGrpc developmentDepartment = DepartmentResponseGrpc.newBuilder().setName("Development").build();
+        given(departmentService.getDepartment("643d1a48362ea1a74ec9f4a4")).willReturn(developmentDepartment);
+
+        // Then
+        mockMvc.perform(get(BASE_URL + "/15")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
     @Test
-    void findAllUsers() throws Exception {
+    void find_all_users() throws Exception {
         mockMvc.perform(get(BASE_URL + "/all")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -109,6 +132,31 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser() {
+    void update_user_success() throws Exception {
+
+        UserRequest request = new UserRequest();
+        request.setFirstName("Grave");
+        request.setLastName("Worm");
+        request.setEmail("graveworm@yandex.ru");
+
+        mockMvc.perform(put(BASE_URL + "/update/5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("Grave Worm")));
+    }
+
+    @Test
+    void update_user_not_found() throws Exception {
+
+        UserRequest request = new UserRequest();
+        request.setFirstName("Grave");
+        request.setLastName("Worm");
+        request.setEmail("graveworm@yandex.ru");
+
+        mockMvc.perform(put(BASE_URL + "/update/12")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
     }
 }

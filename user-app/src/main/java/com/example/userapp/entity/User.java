@@ -18,7 +18,6 @@ import java.util.List;
         @NamedQuery(name = "User.findAllByPhoneIdsIn",
                 query = "SELECT DISTINCT u FROM User u JOIN u.phones p WHERE p.id IN :phoneIds")
 })
-
 public class User {
 
     @Id

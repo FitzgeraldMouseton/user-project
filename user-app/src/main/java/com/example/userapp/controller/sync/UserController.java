@@ -6,8 +6,9 @@ import com.example.model.UserRequest;
 import com.example.model.UserShortResponse;
 import com.example.userapp.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -19,18 +20,18 @@ public class UserController implements UserApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<UserFullResponse> createUser(UserRequest request) {
+    public ResponseEntity<UserFullResponse> createUser(@RequestBody UserRequest request) {
         return ResponseEntity.ok(userService.save(request));
     }
 
     @Override
-    public ResponseEntity<Void> deleteUserById(Long id) {
+    public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<UserFullResponse> findUserById(Long id) {
+    public ResponseEntity<UserFullResponse> findUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -40,7 +41,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<UserFullResponse> updateUser(Long id, UserRequest user) {
-        return ResponseEntity.ok(new UserFullResponse());
+    public ResponseEntity<UserFullResponse> updateUser(@PathVariable Long id, @RequestBody UserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 }
